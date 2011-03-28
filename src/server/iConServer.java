@@ -1,8 +1,12 @@
 package server;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
+import java.util.Set;
 import java.util.StringTokenizer;
+
+import p.P;
 
 import tester.iConWeb;
 
@@ -31,11 +35,11 @@ public class iConServer {
 		random=new Random(seed);
 		addUserDepthLevel=depthLevel;
 		int key=random.nextInt();
-		iConAddress range1 = new iConAddress(url,48.470, -123.320);
-		iConAddress range2 = new iConAddress(url,48.456, -123.306);
+		iConAddress range1 = new iConAddress(url,48.456, -123.320);
+		iConAddress range2 = new iConAddress(url,48.470, -123.306);
 		rootNode = new iConLayeredNode(0,key,range1,range2);
 		hashtable.put(key, rootNode);
-		print("Created root LayeredNode "+key);
+		//print("Created root LayeredNode "+key);
 	}
 	
 	/*
@@ -90,7 +94,9 @@ public class iConServer {
 	 */
 	public int addUser(iConAddress address){
 		int userkey=this.getKey();
+		P.print("iConServer", "Create a new User to add to system "+userkey);
 		rootNode.createUserNode(userkey);
+		P.print("iConServer", "User is created, now add to location data structure");
 		rootNode.addUser(address,addUserDepthLevel,userkey);
 		return userkey;
 	}
@@ -107,6 +113,7 @@ public class iConServer {
 			 */
 			if(userdepth==node.getLevel()){
 				node.addUserkey(userkey);
+				P.print(this.toString(), "should stop now************");
 				return nextNode;
 			}
 		    return node.addUser(userAddress, userdepth,userkey);
@@ -133,11 +140,17 @@ public class iConServer {
 		return url;
 	}
 	
-	private void print(String msg){
-		System.out.println("iConServer::"+url+"::"+msg);
-	}
-
 	public void setUrl(String url) {
 		this.url = url;
+	}
+	
+	public void showhashmap(){
+		Set<Integer> keys = this.hashtable.keySet();
+		Iterator<Integer> it =keys.iterator();
+		while(it.hasNext()){
+			Integer key = it.next();
+			iConNode node = hashtable.get(key);
+			P.print("", node.toString());
+		}
 	}
 }

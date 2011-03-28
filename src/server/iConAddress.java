@@ -5,6 +5,10 @@ public class iConAddress {
 	private double latitude;
 	private double longitude;
 	
+	public String toString(){
+		return "lat:"+latitude+":long:"+longitude;
+	}
+	
 	public iConAddress(String ipaddress,double latitude,double longitude){
 		this.ipaddress=ipaddress;
 		this.latitude=latitude;
