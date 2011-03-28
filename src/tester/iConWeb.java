@@ -2,6 +2,8 @@ package tester;
 
 import java.util.LinkedList;
 
+import p.P;
+
 import server.iConAddress;
 import server.iConNodeIdentifier;
 import server.iConServer;
@@ -16,6 +18,7 @@ public class iConWeb {
 	
 	public void addServer(iConServer server){
 		servers.add(server);
+		P.print("iConWeb","added server "+server.getUrl());
 	}
 	
 	/*
