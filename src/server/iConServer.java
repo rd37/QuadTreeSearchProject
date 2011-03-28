@@ -102,6 +102,45 @@ public class iConServer {
 		return userkey;
 	}
 	
+	public void removeUser(iConNodeIdentifier nextNodeid,int userkey){
+		String nextNodeUrl=nextNodeid.getUrl();
+		int nextNodeKey = nextNodeid.getKey();
+		String quadrant = nextNodeid.getQuadrant();
+		if(nextNodeUrl.equals(this.url)){//next node is local to this server
+			iConLayeredNode nextNode = (iConLayeredNode) this.hashtable.get(nextNodeKey);
+			nextNode.removeUser(userkey);
+			int usersremaining=-1;
+			if(this.addUserDepthLevel==nextNode.getLevel()){
+				 usersremaining = nextNode.removeKey(userkey);
+			}else{
+				usersremaining=nextNode.getUsersRemaining();
+			}
+			if(usersremaining==0){
+				this.hashtable.remove(nextNode.getKey());
+			}
+		}else{//next node is remote
+			iConWeb.getInstance().removeUser(nextNodeUrl,nextNodeUrl,nextNodeKey,quadrant,userkey);
+		}
+	}
+	
+	public void moveUser(iConAddress newaddr,int userkey){
+		this.rootNode.moveUser(newaddr,userkey,this.addUserDepthLevel);
+	}
+	
+	public void moveUser(iConNodeIdentifier nextNodeid, iConAddress newaddr,
+			int userkey) {
+		String nextNodeUrl = nextNodeid.getUrl();
+		int nextNodeKey = nextNodeid.getKey();
+		String nextNodeQuad = nextNodeid.getQuadrant();
+		
+		if(nextNodeUrl.equals(this.url)){//object is local
+			iConLayeredNode nextNode = (iConLayeredNode) this.hashtable.get(nextNodeKey);
+			nextNode.moveUser(newaddr, userkey,this.addUserDepthLevel);
+		}else{//object is remote
+			//perform a web servlet call to move user
+			iConWeb.getInstance().moveUser(nextNodeUrl, nextNodeUrl, nextNodeKey,nextNodeQuad, newaddr.getAddress(),newaddr.getLatitude(),newaddr.getLongitude(), userkey);
+		}
+	}
 	public iConNodeIdentifier addUser(iConAddress userAddress,iConNodeIdentifier nextNode,int userdepth,int userkey){
 		int nextNodeKey=nextNode.getKey();
 		String nextNodeUrl=nextNode.getUrl();
@@ -113,7 +152,7 @@ public class iConServer {
 			 * 
 			 */
 			if(userdepth==node.getLevel()){
-				node.addUserkey(userkey);
+				node.addUserkey(userkey,node.getParentQuadrant());
 				//P.print(this.toString(), "should stop now************");
 				return nextNode;
 			}
@@ -214,4 +253,6 @@ public class iConServer {
 			}
 		}
 	}
+
+	
 }

@@ -1,5 +1,7 @@
 package tester;
-
+/*
+ * this is a class to represent the internet http layer interface between servers.
+ */
 import java.util.LinkedList;
 
 import p.P;
@@ -21,6 +23,37 @@ public class iConWeb {
 		P.print("iConWeb","added server "+server.getUrl());
 	}
 	
+	public void removeUser(String serverurl, String nextNodeUrl2,
+			int nextNodeKey, String quadrant, int userkey) {
+		for(int i=0;i<servers.size();i++){
+			iConServer serv = servers.get(i);
+			if(serv.getUrl().equals(serverurl)){
+				iConNodeIdentifier nextNodeid = new iConNodeIdentifier(nextNodeUrl2,nextNodeKey,quadrant);
+				serv.removeUser(nextNodeid, userkey);
+			}
+		}
+	}
+	
+	public void moveUser(String serverurl, String newip,double newlat, double newlong, int userkey){
+		for(int i=0;i<servers.size();i++){
+			iConServer serv = servers.get(i);
+			if(serv.getUrl().equals(serverurl)){
+				iConAddress newaddr = new iConAddress(newip,newlat,newlong);
+				serv.moveUser(newaddr,userkey);
+			}
+		}
+	}
+	
+	public void moveUser(String serverurl, String nextNodeUrl, int nextNodeKey,String nextNodeQuad, String newip,double newlat,double newlong, int userkey){
+		for(int i=0;i<servers.size();i++){
+			iConServer serv = servers.get(i);
+			if(serv.getUrl().equals(serverurl)){
+				iConAddress newaddr = new iConAddress(newip,newlat,newlong);
+				iConNodeIdentifier nextNodeid = new iConNodeIdentifier(nextNodeUrl,nextNodeKey,nextNodeQuad);
+				serv.moveUser(nextNodeid,newaddr,userkey);
+			}
+		}
+	}
 	/*
 	 * add user (addr)
 	 */
@@ -74,5 +107,6 @@ public class iConWeb {
 			return nodeid.toString();
 		return "";
 	}
+
 	
 }
