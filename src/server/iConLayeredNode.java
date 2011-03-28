@@ -1,12 +1,15 @@
 package server;
 
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.Set;
+//import java.util.LinkedList;
 
 import p.P;
 
 public class iConLayeredNode implements iConNode{
 	private int hashkey;
-	private LinkedList<Integer> userkeys = new LinkedList<Integer>();
+	private HashMap<Integer,Object> userkeys = new HashMap<Integer,Object>();
+	//private LinkedList<Integer> userkeys = new LinkedList<Integer>();
 	private int level;
 	private iConAddress range1;
 	private iConAddress range2;
@@ -17,24 +20,26 @@ public class iConLayeredNode implements iConNode{
 	private iConNodeIdentifier prevPeer=null;
 	private double latShift=0;
 	private double longShift=0;
+	private String parentQuadrant="";
 	
 	public String toString(){
 		return "iConLayeredNode:"+hashkey+":lvl:"+level+":rng1:"+range1.toString()+":rng2:"+range2.toString();
 	}
 	
-	public String toString2(){
+	/*public String toString2(){
 		return "iConLayeredNode:"+hashkey+":lvl:"+level;
-	}
+	}*/
 	
-	public iConLayeredNode(int level,int key,iConAddress range1,iConAddress range2){
+	public iConLayeredNode(int level,int key,iConAddress range1,iConAddress range2,String parentQuadrant){
 		this.level = level;
 		this.hashkey = key;
 		this.range1=range1;
 		this.range2=range2;
+		this.parentQuadrant=parentQuadrant;
 		this.createShiftedRangeLatitude(range1, range2);
 		this.createShiftedRangeLongitude(range1, range2);
 		nextPeer=prevPeer=new iConNodeIdentifier(iConServer.getInstance().getUrl(),this.getKey(),"");
-		P.print(this.toString2(), "rng1:"+range1.getLatitude()+":"+range1.getLongitude()+" rng2:"+range2.getLatitude()+":"+range2.getLongitude()+" s_rng1:"+shiftedrange1.getLatitude()+":"+shiftedrange1.getLongitude()+" s_rng2:"+shiftedrange2.getLatitude()+":"+shiftedrange2.getLongitude()+" lat_off:"+this.latShift+" long_off:"+this.longShift);
+		//P.print(this.toString2(), "rng1:"+range1.getLatitude()+":"+range1.getLongitude()+" rng2:"+range2.getLatitude()+":"+range2.getLongitude()+" s_rng1:"+shiftedrange1.getLatitude()+":"+shiftedrange1.getLongitude()+" s_rng2:"+shiftedrange2.getLatitude()+":"+shiftedrange2.getLongitude()+" lat_off:"+this.latShift+" long_off:"+this.longShift);
 	}
 	
 	private void createShiftedRangeLatitude(iConAddress rng1,iConAddress rng2){
@@ -74,7 +79,7 @@ public class iConLayeredNode implements iConNode{
 		}
 	}
 	
-	public void createUserNode(int key){
+	public void createUserNode(int key,int depth){
 		int prevKey=this.hashkey;
 		if(prevPeer!=null){
 			prevKey=prevPeer.getKey();
@@ -83,9 +88,10 @@ public class iConLayeredNode implements iConNode{
 			/*
 			 * Create a new node and add to this iConServer
 			 */
-			P.print("iconLayeredNode_"+this.level+"_"+this.hashkey,	 "is the only node, so create user and add to this hash space ");
+			//P.print("iconLayeredNode_"+this.level+"_"+this.hashkey,	 "is the only node, so create user and add to this hash space ");
 			iConUser userNode = new iConUser();
 			userNode.setKey(key);
+			userNode.setLevel(depth);
 			iConServer.getInstance().addNodeToHashTable(userNode, key);
 		}else if(key<this.hashkey&&key>prevKey){ // key is OK to belong to this node
 			/*
@@ -93,6 +99,7 @@ public class iConLayeredNode implements iConNode{
 			 */
 			iConUser userNode = new iConUser();
 			userNode.setKey(key);
+			userNode.setLevel(depth);
 			iConServer.getInstance().addNodeToHashTable(userNode, key);
 		}else{//key is out of range of this node. resend request to either next or prev node
 			iConServer.getInstance().createUserNode(nextPeer,key);
@@ -110,14 +117,14 @@ public class iConLayeredNode implements iConNode{
 			/*
 			 * Create a new node and add to this iConServer
 			 */
-			iConLayeredNode newNode = new iConLayeredNode(level+1,key,subRange1,subRange2);
+			iConLayeredNode newNode = new iConLayeredNode(level+1,key,subRange1,subRange2,addrPartition);
 			iConServer.getInstance().addNodeToHashTable(newNode, key);
 			alr=new iConNodeIdentifier(iConServer.getInstance().getUrl(),key,addrPartition);
 		}else if(key<this.hashkey&&key>prevKey){ // key is OK to belong to this node
 			/*
 			 * Create a new node and add to this iConServer
 			 */
-			iConLayeredNode newNode = new iConLayeredNode(level+1,key,subRange1,subRange2);
+			iConLayeredNode newNode = new iConLayeredNode(level+1,key,subRange1,subRange2,addrPartition);
 			iConServer.getInstance().addNodeToHashTable(newNode, key);
 			alr=new iConNodeIdentifier(iConServer.getInstance().getUrl(),key,addrPartition);
 		}else{//key is out of range of this node. resend request to either next or prev node
@@ -130,10 +137,10 @@ public class iConLayeredNode implements iConNode{
 	public iConNodeIdentifier getChildNode(iConAddress address){
 		double latitude=address.getLatitude()+latShift;
 		double longitude=address.getLongitude()+longShift;
-		P.print(this.toString2(), "user lat "+latitude+" user long:"+longitude);
+		//P.print(this.toString2(), "user lat "+latitude+" user long:"+longitude);
 		if( shiftedrange1.getLongitude()<longitude && shiftedrange2.getLongitude()>longitude ){
 			if( shiftedrange1.getLatitude()<latitude && shiftedrange2.getLatitude()>latitude ){
-				P.print(this.toString2(), "added user fits in this nodes range, find sub range");
+				//P.print(this.toString2(), "added user fits in this nodes range, find sub range");
 				iConNodeIdentifier alr;
 				String addrPartition="";
 				int addrPartitionIndex=-1;
@@ -142,7 +149,7 @@ public class iConLayeredNode implements iConNode{
 				if(shiftedrange1.getLongitude()<longitude && (shiftedrange2.getLongitude()/2)>longitude ){
 					if( shiftedrange1.getLatitude()<latitude && (shiftedrange2.getLatitude()/2)<latitude ){
 						//check A
-						P.print(this.toString2(), "added user fits in this sub-range A,chk if child-node exists");
+						//P.print(this.toString2(), "added user fits in this sub-range A,chk if child-node exists");
 						alr = addrrouting[0];
 						addrPartition="A";
 						addrPartitionIndex=0;
@@ -150,7 +157,7 @@ public class iConLayeredNode implements iConNode{
 						subRange2 = new iConAddress(range2.getAddress(),this.range2.getLatitude(),this.range2.getLongitude()+(shiftedrange2.getLongitude()/2));
 					}else{
 						//check C
-						P.print(this.toString2(), "added user fits in this sub-range C,chk if child-node exists");
+						//P.print(this.toString2(), "added user fits in this sub-range C,chk if child-node exists");
 						alr = addrrouting[2];
 						addrPartition="C";
 						addrPartitionIndex=2;
@@ -160,7 +167,7 @@ public class iConLayeredNode implements iConNode{
 				}else{
 					if( shiftedrange1.getLatitude()<latitude && (shiftedrange2.getLatitude()/2) <latitude ){
 						//check B
-						P.print(this.toString2(), "added user fits in this sub-range B,chk if child-node exists");
+						//P.print(this.toString2(), "added user fits in this sub-range B,chk if child-node exists");
 						alr = addrrouting[1];
 						addrPartition="B";
 						addrPartitionIndex=1;
@@ -168,7 +175,7 @@ public class iConLayeredNode implements iConNode{
 						subRange2 = new iConAddress(range2.getAddress(),this.range2.getLatitude(),this.range2.getLongitude());
 					}else{
 						//check D
-						P.print(this.toString2(), "added user fits in this sub-range D,chk if child-node exists");
+						//P.print(this.toString2(), "added user fits in this sub-range D,chk if child-node exists");
 						alr = addrrouting[3];
 						addrPartition="D";
 						addrPartitionIndex=3;
@@ -178,7 +185,7 @@ public class iConLayeredNode implements iConNode{
 					}
 				}
 				if(alr==null){
-					P.print(this.toString2(), "child node does not exist, create key then create new node");
+					//P.print(this.toString2(), "child node does not exist, create key then create new node");
 					
 					/*
 					 * there is no child node, so generate a key and request iConServer
@@ -194,29 +201,29 @@ public class iConLayeredNode implements iConNode{
 						/*
 						 * Create a new node and add to this iConServer
 						 */
-						P.print(this.toString2(), "new child key can belong to this parent node");
+						//P.print(this.toString2(), "new child key can belong to this parent node");
 						
-						iConLayeredNode newNode = new iConLayeredNode(level+1,key,subRange1,subRange2);
+						iConLayeredNode newNode = new iConLayeredNode(level+1,key,subRange1,subRange2,addrPartition);
 						iConServer.getInstance().addNodeToHashTable(newNode, key);
 						alr=new iConNodeIdentifier(iConServer.getInstance().getUrl(),key,addrPartition);
 					}else if(key<this.hashkey&&key>prevKey){ // key is OK to belong to this node
 						/*
 						 * Create a new node and add to this iConServer
 						 */
-						P.print(this.toString2(), "new child key can belong to this parent node as well");
+						//P.print(this.toString2(), "new child key can belong to this parent node as well");
 						
-						iConLayeredNode newNode = new iConLayeredNode(level+1,key,subRange1,subRange2);
+						iConLayeredNode newNode = new iConLayeredNode(level+1,key,subRange1,subRange2,addrPartition);
 						iConServer.getInstance().addNodeToHashTable(newNode, key);
 						alr=new iConNodeIdentifier(iConServer.getInstance().getUrl(),key,addrPartition);
 					}else{//key is out of range of this node. resend request to either next or prev node
-						P.print(this.toString2(), "new child key is oout of range, try next peer node");
+						//P.print(this.toString2(), "new child key is oout of range, try next peer node");
 						
 						iConNodeIdentifier nextNode = new iConNodeIdentifier(nextPeer.getUrl(),nextPeer.getKey(),nextPeer.getQuadrant());
 						alr = iConServer.getInstance().createChildNode(nextNode,key,subRange1,subRange2,addrPartition);
 					}
 					addrrouting[addrPartitionIndex]=alr;
 				}else{
-					P.print(this.toString2(), "child node exists so return its node identifier");
+					//P.print(this.toString2(), "child node exists so return its node identifier");
 				}
 				return alr;
 			}
@@ -227,14 +234,14 @@ public class iConLayeredNode implements iConNode{
 	}
 
 	public iConNodeIdentifier addUser(iConAddress userAddress,int addUserDepthLevel,int userkey){
-		P.print(this.toString2(), "Entered Node, now find the child node ");
+		//P.print(this.toString2(), "Entered Node, now find the child node ");
 		iConNodeIdentifier childNode = this.getChildNode(userAddress);
-		this.userkeys.add(userkey);
+		this.userkeys.put(userkey,null);
 		return iConServer.getInstance().addUser(userAddress, childNode,addUserDepthLevel,userkey);
 	}
 	
 	public void addUserkey(int userkey){
-		this.userkeys.add(userkey);
+		this.userkeys.put(userkey,null);
 	}
 	
 	@Override
@@ -251,5 +258,15 @@ public class iConLayeredNode implements iConNode{
 		this.hashkey = key;
 	}
 
-	
+	public void setParentQuadrant(String parentQuadrant) {
+		this.parentQuadrant = parentQuadrant;
+	}
+
+	public String getParentQuadrant() {
+		return parentQuadrant;
+	}
+
+	public Set<Integer> getRegisteredUserKeys(){
+		return this.userkeys.keySet();
+	}
 }

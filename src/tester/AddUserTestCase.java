@@ -12,10 +12,11 @@ public class AddUserTestCase extends TestCase{
 		server.intialize(765, 4);
 		server.setUrl("rigi-lab-03.cs.uvic.ca");
 		iConWeb.getInstance().addServer(server);
-		server.showhashmap();
+		//server.showhashmap();
 		iConWeb.getInstance().addUser("rigi-lab-03.cs.uvic.ca", "142.104.35.43", 48.469, -123.318);
 		P.print(this.toString(), "********add another user to same***********");
-		iConWeb.getInstance().addUser("rigi-lab-03.cs.uvic.ca", "142.104.35.44", 48.469, -123.318);
+		iConWeb.getInstance().addUser("rigi-lab-03.cs.uvic.ca", "142.104.35.44", 48.461, -123.318);
+		server.showlocationtree();
 	}
 
 	@Override
