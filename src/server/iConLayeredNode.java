@@ -201,6 +201,10 @@ public class iConLayeredNode implements iConNode{
 		return iConServer.getInstance().addUser(userAddress, childNode,addUserDepthLevel,userkey);
 	}
 	
+	public void addUserkey(int userkey){
+		this.userkeys.add(userkey);
+	}
+	
 	@Override
 	public int getKey() {
 		return hashkey;

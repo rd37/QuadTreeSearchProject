@@ -106,7 +106,8 @@ public class iConServer {
 			 * 
 			 */
 			if(userdepth==node.getLevel()){
-				
+				node.addUserkey(userkey);
+				return nextNode;
 			}
 		    return node.addUser(userAddress, userdepth,userkey);
 		}else{
