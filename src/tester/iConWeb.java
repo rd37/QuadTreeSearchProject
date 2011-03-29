@@ -34,6 +34,40 @@ public class iConWeb {
 		}
 	}
 	
+	public LinkedList<Integer> getCoverage(String url, int key,
+			String quadrant, String address, double latitude, double longitude,
+			double latlongrad) {
+		for(int i=0;i<servers.size();i++){
+			iConServer serv = servers.get(i);
+			if(serv.getUrl().equals(url)){
+				iConAddress srcAddress = new iConAddress(address,latitude,longitude);
+				iConAddress coverRng1 = new iConAddress(address,latitude-latlongrad,longitude-latlongrad);
+				iConAddress coverRng2 = new iConAddress(address,latitude+latlongrad,longitude+latlongrad);
+				iConNodeIdentifier nodeid = new iConNodeIdentifier(url,key,quadrant);
+				return  serv.getCoverage(coverRng1,coverRng2,nodeid,srcAddress,latlongrad);
+			}
+		}
+		return null;
+	}
+	
+	public String getCoverage(String serverurl, String newip,double newlat, double newlong, int userkey,double latlongrad){
+		LinkedList<Integer> list=null;
+		for(int i=0;i<servers.size();i++){
+			iConServer serv = servers.get(i);
+			if(serv.getUrl().equals(serverurl)){
+				iConAddress srcAddress = new iConAddress(newip,newlat,newlong);
+				iConAddress coverRng1 = new iConAddress(newip,newlat-latlongrad,newlong-latlongrad);
+				iConAddress coverRng2 = new iConAddress(newip,newlat+latlongrad,newlong+latlongrad);
+				list =  serv.getCoverage(coverRng1,coverRng2,null,srcAddress,latlongrad);
+			}
+		}
+		String returnString="";
+		for(int i=0;i<list.size();i++){
+			returnString+=" "+list.get(i).intValue()+" ";
+		}
+		return returnString;
+	}
+	
 	public void moveUser(String serverurl, String newip,double newlat, double newlong, int userkey){
 		for(int i=0;i<servers.size();i++){
 			iConServer serv = servers.get(i);
@@ -107,6 +141,23 @@ public class iConWeb {
 			return nodeid.toString();
 		return "";
 	}
+
+	public String addAllUsersInNode(String serverurl, int nodekey, String quadrant) {
+		for(int i=0;i<servers.size();i++){
+			iConServer serv = servers.get(i);
+			if(serv.getUrl().equals(serverurl)){
+				iConNodeIdentifier peerNode = new iConNodeIdentifier(serverurl,nodekey,quadrant);
+				LinkedList<Integer> users = serv.getAllUserKeys(peerNode);
+				String returnString = new String();
+				for(int k=0;k<users.size();k++){
+					returnString+=" "+users.get(k).intValue()+" ";
+				}
+				return returnString;
+			}
+		}
+		return null;
+	}
+
 
 	
 }

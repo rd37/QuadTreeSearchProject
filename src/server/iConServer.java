@@ -101,8 +101,55 @@ public class iConServer {
 		rootNode.addUser(address,addUserDepthLevel,userkey);
 		return userkey;
 	}
+	public LinkedList<Integer> getAllUserKeys(iConNodeIdentifier childnode){
+		iConLayeredNode childNode = (iConLayeredNode) this.hashtable.get(childnode.getKey());
+		Set<Integer> keys = childNode.getRegisteredUserKeys();
+		Iterator<Integer> it = keys.iterator();
+		LinkedList<Integer> userkeys = new LinkedList<Integer>();
+		while(it.hasNext()){
+			userkeys.add(it.next());
+		}
+		return userkeys;
+	}
+	
+	public LinkedList<Integer> addAllUsersInNode(iConNodeIdentifier childNodeid){
+		if(childNodeid.getUrl().equals(this.url)){
+			LinkedList<Integer> users = new LinkedList<Integer>();
+			iConLayeredNode childNode = (iConLayeredNode) this.hashtable.get(childNodeid.getKey());
+			Set<Integer> keys = childNode.getRegisteredUserKeys();
+			Iterator<Integer> it = keys.iterator();
+			while(it.hasNext()){
+				users.add(it.next());
+			}
+			return users;
+		}else{
+			LinkedList<Integer> users = new LinkedList<Integer>();
+			String userkeys = iConWeb.getInstance().addAllUsersInNode(childNodeid.getUrl(),childNodeid.getKey(),childNodeid.getQuadrant());
+			StringTokenizer st = new StringTokenizer(userkeys);
+			while(st.hasMoreTokens()){
+				users.add(new Integer(st.nextToken()));
+			}
+			return users;
+		}
+		
+	}
+	
+	public LinkedList<Integer> getCoverage(iConAddress coverRng1,iConAddress coverRng2,iConNodeIdentifier nodeid,iConAddress srcAddress,double latlongrad){
+		if(nodeid==null){//assume to use root node then
+			return this.rootNode.getCoverage(coverRng1,coverRng2,srcAddress,latlongrad);
+		}else{//must be recursive call back
+			if(nodeid.getUrl().equals(this.url)){
+				iConLayeredNode node = (iConLayeredNode) this.hashtable.get(nodeid.getKey());//reteive node from this hash table
+				return node.getCoverage(coverRng1,coverRng2,srcAddress,latlongrad);
+			}else{//node must be on another machine
+				return iConWeb.getInstance().getCoverage(nodeid.getUrl(),nodeid.getKey(),nodeid.getQuadrant(),srcAddress.getAddress(),srcAddress.getLatitude(),srcAddress.getLongitude(),latlongrad);
+			}
+		}
+	}
 	
 	public void removeUser(iConNodeIdentifier nextNodeid,int userkey){
+		if(nextNodeid==null)
+			return;
 		String nextNodeUrl=nextNodeid.getUrl();
 		int nextNodeKey = nextNodeid.getKey();
 		String quadrant = nextNodeid.getQuadrant();
@@ -110,13 +157,14 @@ public class iConServer {
 			iConLayeredNode nextNode = (iConLayeredNode) this.hashtable.get(nextNodeKey);
 			nextNode.removeUser(userkey);
 			int usersremaining=-1;
-			if(this.addUserDepthLevel==nextNode.getLevel()){
+			P.print("iConServer", "remove user at level "+nextNode.getLevel());
+			if(this.addUserDepthLevel==(nextNode.getLevel())){
 				 usersremaining = nextNode.removeKey(userkey);
 			}else{
 				usersremaining=nextNode.getUsersRemaining();
 			}
 			if(usersremaining==0){
-				this.hashtable.remove(nextNode.getKey());
+				//this.hashtable.remove(nextNode.getKey());
 			}
 		}else{//next node is remote
 			iConWeb.getInstance().removeUser(nextNodeUrl,nextNodeUrl,nextNodeKey,quadrant,userkey);
@@ -151,7 +199,7 @@ public class iConServer {
 			 * 
 			 * 
 			 */
-			if(userdepth==node.getLevel()){
+			if(userdepth==(node.getLevel())){
 				node.addUserkey(userkey,node.getParentQuadrant());
 				//P.print(this.toString(), "should stop now************");
 				return nextNode;

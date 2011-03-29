@@ -10,6 +10,8 @@ public class iConTester {
 			for(int i=0;i<tests.size();i++){
 				tests.get(i).execute();
 			}
+		}else{
+			tests.get(type).execute();
 		}
 	}
 	
@@ -19,12 +21,14 @@ public class iConTester {
 		 */
 		AddUserTestCase testcase1 = new AddUserTestCase();
 		tests.add(testcase1);
+		MoveUserTestCase testcase2 = new MoveUserTestCase();
+		tests.add(testcase2);
 		
 	}
 	
 	public static void main(String args[]){
 		iConTester tester = new iConTester();
 		tester.initialize();
-		tester.execute(-1);
+		tester.execute(1);
 	}
 }

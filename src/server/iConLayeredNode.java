@@ -1,6 +1,7 @@
 package server;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Set;
 //import java.util.LinkedList;
 
@@ -26,9 +27,9 @@ public class iConLayeredNode implements iConNode{
 		return "iConLayeredNode:"+hashkey+":lvl:"+level+":rng1:"+range1.toString()+":rng2:"+range2.toString();
 	}
 	
-	/*public String toString2(){
+	public String toString2(){
 		return "iConLayeredNode:"+hashkey+":lvl:"+level;
-	}*/
+	}
 	
 	public iConLayeredNode(int level,int key,iConAddress range1,iConAddress range2,String parentQuadrant){
 		this.level = level;
@@ -137,10 +138,13 @@ public class iConLayeredNode implements iConNode{
 	public iConNodeIdentifier getChildNode(iConAddress address){
 		double latitude=address.getLatitude()+latShift;
 		double longitude=address.getLongitude()+longShift;
-		//P.print(this.toString2(), "user lat "+latitude+" user long:"+longitude);
+		//P.print("Shifted "+this.toString2(), "User Lat "+latitude+" User Long "+longitude);
+		//P.print("Actual "+this.toString2(), "User Lat "+address.getLatitude()+" User Long "+address.getLongitude());
 		if( shiftedrange1.getLongitude()<longitude && shiftedrange2.getLongitude()>longitude ){
 			if( shiftedrange1.getLatitude()<latitude && shiftedrange2.getLatitude()>latitude ){
-				//P.print(this.toString2(), "added user fits in this nodes range, find sub range");
+				//P.print(this.toString2(), "Added user fits in this nodes range, find sub range");
+				//P.print("Shifted "+this.toString2(), "Quad Rng1 "+shiftedrange1.getLatitude()+" "+shiftedrange1.getLongitude()+"  RNG2 "+shiftedrange2.getLatitude()+" "+shiftedrange2.getLongitude());
+				//P.print("Actual "+this.toString2(), "Quad Rng1 "+range1.getLatitude()+" "+range1.getLongitude()+"  RNG2 "+range2.getLatitude()+" "+range2.getLongitude());
 				iConNodeIdentifier alr;
 				String addrPartition="";
 				int addrPartitionIndex=-1;
@@ -154,7 +158,8 @@ public class iConLayeredNode implements iConNode{
 						addrPartition="A";
 						addrPartitionIndex=0;
 						subRange1 = new iConAddress(range1.getAddress(),this.range1.getLatitude()+(shiftedrange2.getLatitude()/2),this.range1.getLongitude());
-						subRange2 = new iConAddress(range2.getAddress(),this.range2.getLatitude(),this.range2.getLongitude()+(shiftedrange2.getLongitude()/2));
+						subRange2 = new iConAddress(range2.getAddress(),this.range2.getLatitude(),this.range2.getLongitude()-(shiftedrange2.getLongitude()/2));
+						//P.print("Created Actual Sub Range for A "+this.toString2(), "Quad Rng1 "+subRange1.getLatitude()+" "+subRange1.getLongitude()+"  RNG2 "+subRange2.getLatitude()+" "+subRange2.getLongitude());
 					}else{
 						//check C
 						//P.print(this.toString2(), "added user fits in this sub-range C,chk if child-node exists");
@@ -162,7 +167,9 @@ public class iConLayeredNode implements iConNode{
 						addrPartition="C";
 						addrPartitionIndex=2;
 						subRange1 = new iConAddress(range1.getAddress(),this.range1.getLatitude(),this.range1.getLongitude());
-						subRange2 = new iConAddress(range2.getAddress(),this.range2.getLatitude()-shiftedrange2.getLatitude()/2,this.range2.getLongitude()+(shiftedrange2.getLongitude()/2));
+						subRange2 = new iConAddress(range2.getAddress(),this.range2.getLatitude()-shiftedrange2.getLatitude()/2,this.range2.getLongitude()-(shiftedrange2.getLongitude()/2));
+						//P.print("Created Actual Sub Range for C "+this.toString2(), "Quad Rng1 "+subRange1.getLatitude()+" "+subRange1.getLongitude()+"  RNG2 "+subRange2.getLatitude()+" "+subRange2.getLongitude());
+						
 					}
 				}else{
 					if( shiftedrange1.getLatitude()<latitude && (shiftedrange2.getLatitude()/2) <latitude ){
@@ -171,17 +178,20 @@ public class iConLayeredNode implements iConNode{
 						alr = addrrouting[1];
 						addrPartition="B";
 						addrPartitionIndex=1;
-						subRange1 = new iConAddress(range1.getAddress(),this.range1.getLatitude()+(shiftedrange2.getLatitude()/2),this.range1.getLongitude()-(shiftedrange2.getLongitude()/2));
+						subRange1 = new iConAddress(range1.getAddress(),this.range1.getLatitude()+(shiftedrange2.getLatitude()/2),this.range1.getLongitude()+(shiftedrange2.getLongitude()/2));
 						subRange2 = new iConAddress(range2.getAddress(),this.range2.getLatitude(),this.range2.getLongitude());
+						//P.print("Created Actual Sub Range for B "+this.toString2(), "Quad Rng1 "+subRange1.getLatitude()+" "+subRange1.getLongitude()+"  RNG2 "+subRange2.getLatitude()+" "+subRange2.getLongitude());
+						
 					}else{
 						//check D
 						//P.print(this.toString2(), "added user fits in this sub-range D,chk if child-node exists");
 						alr = addrrouting[3];
 						addrPartition="D";
 						addrPartitionIndex=3;
-						subRange1 = new iConAddress(range1.getAddress(),this.range1.getLatitude(),this.range1.getLongitude()-(shiftedrange2.getLongitude()/2));
+						subRange1 = new iConAddress(range1.getAddress(),this.range1.getLatitude(),this.range1.getLongitude()+(shiftedrange2.getLongitude()/2));
 						subRange2 = new iConAddress(range2.getAddress(),this.range2.getLatitude()-shiftedrange2.getLatitude()/2,this.range2.getLongitude());
-					
+						//P.print("Created Actual Sub Range for D "+this.toString2(), "Quad Rng1 "+subRange1.getLatitude()+" "+subRange1.getLongitude()+"  RNG2 "+subRange2.getLatitude()+" "+subRange2.getLongitude());
+						
 					}
 				}
 				if(alr==null){
@@ -246,6 +256,7 @@ public class iConLayeredNode implements iConNode{
 	
 	public void moveUser(iConAddress newaddr,int userkey,int addUserDepthLevel){
 		String quadrant = (String) this.userkeys.get(userkey);
+		P.print("iConLayeredNode:"+this.getLevel()+"", " to move user "+userkey+" from quad "+quadrant);
 		iConNodeIdentifier nextNodeid=null;
 		if(quadrant.equals("A")){
 			nextNodeid=addrrouting[0];
@@ -263,11 +274,14 @@ public class iConLayeredNode implements iConNode{
 		 * then add user with new address
 		 */
 		String newquadrant = this.getQuadrant(newaddr);
+		
 		if(quadrant.equals(newquadrant)){//quadrants are the same so no changes here
 			iConServer.getInstance().moveUser(nextNodeid, newaddr,userkey);
 		}else{//quadrants are different.  so make change from here
 			//remove user from system
-			iConServer.getInstance().removeUser(nextNodeid,userkey);
+			P.print("iConLayeredNode:"+this.level, "Quadrants are now different so remove user from old line "+quadrant+" "+newquadrant);
+			if(nextNodeid!=null)
+				iConServer.getInstance().removeUser(nextNodeid,userkey);
 			//add user to system
 			iConNodeIdentifier childNode = this.getChildNode(newaddr);
 			iConServer.getInstance().addUser(newaddr, childNode,addUserDepthLevel,userkey);
@@ -349,6 +363,112 @@ public class iConLayeredNode implements iConNode{
 			}
 		}else{
 			P.print(this.toString(), "address did not fit in this range");
+		}
+		return null;
+	}
+
+	private int getCoverage(int quad,iConAddress coverRng1,iConAddress coverRng2){
+		iConAddress subRange1=null;
+		iConAddress subRange2=null;
+		if(quad==0){
+				subRange1 = new iConAddress(range1.getAddress(),this.range1.getLatitude()+(shiftedrange2.getLatitude()/2),this.range1.getLongitude());
+				subRange2 = new iConAddress(range2.getAddress(),this.range2.getLatitude(),this.range2.getLongitude()-(shiftedrange2.getLongitude()/2));
+				//P.print("Created Actual Sub Range for A "+this.toString2(), "Quad Rng1 "+subRange1.getLatitude()+" "+subRange1.getLongitude()+"  RNG2 "+subRange2.getLatitude()+" "+subRange2.getLongitude());
+		}else if(quad==2){
+				subRange1 = new iConAddress(range1.getAddress(),this.range1.getLatitude(),this.range1.getLongitude());
+				subRange2 = new iConAddress(range2.getAddress(),this.range2.getLatitude()-shiftedrange2.getLatitude()/2,this.range2.getLongitude()-(shiftedrange2.getLongitude()/2));
+	    }else if(quad==1){
+				subRange1 = new iConAddress(range1.getAddress(),this.range1.getLatitude()+(shiftedrange2.getLatitude()/2),this.range1.getLongitude()+(shiftedrange2.getLongitude()/2));
+				subRange2 = new iConAddress(range2.getAddress(),this.range2.getLatitude(),this.range2.getLongitude());
+	    }else if(quad==3){
+				subRange1 = new iConAddress(range1.getAddress(),this.range1.getLatitude(),this.range1.getLongitude()+(shiftedrange2.getLongitude()/2));
+				subRange2 = new iConAddress(range2.getAddress(),this.range2.getLatitude()-shiftedrange2.getLatitude()/2,this.range2.getLongitude());
+	    }
+		//check for total cover
+		if(coverRng1.getLongitude()<subRange1.getLongitude()&&coverRng2.getLongitude()>subRange2.getLongitude()){
+			if(coverRng1.getLatitude()<subRange1.getLatitude()&&coverRng2.getLatitude()>subRange2.getLatitude()){
+				return 1;
+			}
+		}
+		double coverrange=coverRng2.getLongitude()-coverRng1.getLongitude();
+		coverrange=Math.abs(coverrange);
+		double subrange=subRange2.getLongitude()-subRange1.getLongitude();
+		subrange=Math.abs(subrange);
+		if(coverrange>subrange){
+			//check subrange rng1 for inside coverrange
+			if(coverRng1.getLongitude()<subRange1.getLongitude()&&subRange1.getLongitude()>coverRng2.getLongitude()){
+				if(coverRng1.getLatitude()<subRange1.getLatitude()&&coverRng2.getLatitude()>subRange1.getLatitude()){
+					return 0;
+				}
+			}
+			//check subrange rng2 for inside coverrange
+			if(coverRng1.getLongitude()<subRange2.getLongitude()&&subRange2.getLongitude()>coverRng2.getLongitude()){
+				if(coverRng1.getLatitude()<subRange2.getLatitude()&&coverRng2.getLatitude()>subRange2.getLatitude()){
+					return 0;
+				}
+			}
+			//check topleft corner possibility,need bottom right corner
+			iConAddress bottomright = new iConAddress(subRange1.getAddress(),subRange1.getLatitude(),subRange2.getLongitude());
+			if(coverRng1.getLongitude()<bottomright.getLongitude()&&bottomright.getLongitude()>coverRng2.getLongitude()){
+				if(coverRng1.getLatitude()<bottomright.getLatitude()&&coverRng2.getLatitude()>bottomright.getLatitude()){
+					return 0;
+				}
+			}
+			//check botton right corner possiblity need top left corner
+			iConAddress topleft = new iConAddress(subRange1.getAddress(),subRange1.getLongitude(),subRange2.getLatitude());
+			if(coverRng1.getLongitude()<topleft.getLongitude()&&topleft.getLongitude()>coverRng2.getLongitude()){
+				if(coverRng1.getLatitude()<topleft.getLatitude()&&coverRng2.getLatitude()>topleft.getLatitude()){
+					return 0;
+				}
+			}
+		}else{
+			//check subrange rng1 for inside coverrange
+			if(subRange1.getLongitude()<coverRng1.getLongitude()&&coverRng1.getLongitude()>subRange2.getLongitude()){
+				if(subRange1.getLatitude()<coverRng1.getLatitude()&&subRange2.getLatitude()>coverRng1.getLatitude()){
+					return 0;
+				}
+			}
+			//check subrange rng2 for inside coverrange
+			if(subRange1.getLongitude()<coverRng2.getLongitude()&&coverRng2.getLongitude()>subRange2.getLongitude()){
+				if(subRange1.getLatitude()<coverRng2.getLatitude()&&subRange2.getLatitude()>coverRng2.getLatitude()){
+					return 0;
+				}
+			}
+			//check topleft corner possibility,need bottom right corner
+			iConAddress bottomright = new iConAddress(coverRng1.getAddress(),coverRng1.getLatitude(),coverRng2.getLongitude());
+			if(subRange1.getLongitude()<bottomright.getLongitude()&&bottomright.getLongitude()>subRange2.getLongitude()){
+				if(subRange1.getLatitude()<bottomright.getLatitude()&&subRange2.getLatitude()>bottomright.getLatitude()){
+					return 0;
+				}
+			}
+			//check bottom right corner possiblity need top left corner
+			
+			iConAddress topleft = new iConAddress(coverRng1.getAddress(),coverRng1.getLongitude(),coverRng2.getLatitude());
+			if(subRange1.getLongitude()<topleft.getLongitude()&&topleft.getLongitude()>subRange2.getLongitude()){
+				if(subRange1.getLatitude()<topleft.getLatitude()&&subRange2.getLatitude()>topleft.getLatitude()){
+					return 0;
+				}
+			}
+		}
+		return -1;//no coverage at all
+	}
+	
+	public LinkedList<Integer> getCoverage(iConAddress coverRng1,
+			iConAddress coverRng2, iConAddress srcAddress, double latlongrad) {
+		LinkedList<Integer> usersInCover = new LinkedList<Integer>();
+		for(int i=0;i<4;i++){
+			iConNodeIdentifier childNodeid = this.addrrouting[i];
+			if(childNodeid!=null){
+				int covertype = getCoverage(i,coverRng1,coverRng2);
+				if(covertype==1){//we have full coverage add all users to list under this cover node
+					LinkedList<Integer> childUsers = iConServer.getInstance().addAllUsersInNode(childNodeid);
+					for(int k=0;i<childUsers.size();k++){
+						usersInCover.add(childUsers.get(k));
+					}
+				}else if(covertype==0){//we have partial coverage only need to sub call getCoverage
+					return iConServer.getInstance().getCoverage(coverRng1, coverRng2, childNodeid, srcAddress, latlongrad);
+				}
+			}
 		}
 		return null;
 	}
