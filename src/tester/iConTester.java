@@ -23,12 +23,13 @@ public class iConTester {
 		tests.add(testcase1);
 		MoveUserTestCase testcase2 = new MoveUserTestCase();
 		tests.add(testcase2);
-		
+		LocateCoverageTestCase testcase3 = new LocateCoverageTestCase();
+		tests.add(testcase3);
 	}
 	
 	public static void main(String args[]){
 		iConTester tester = new iConTester();
 		tester.initialize();
-		tester.execute(1);
+		tester.execute(2);
 	}
 }
