@@ -384,6 +384,11 @@ public class iConLayeredNode implements iConNode{
 				subRange1 = new iConAddress(range1.getAddress(),this.range1.getLatitude(),this.range1.getLongitude()+(shiftedrange2.getLongitude()/2));
 				subRange2 = new iConAddress(range2.getAddress(),this.range2.getLatitude()-shiftedrange2.getLatitude()/2,this.range2.getLongitude());
 	    }
+		//P.print("", "**************"+this.toString2());
+		//P.print("iConLayeredNode", "Determining Coverage Using");
+		//P.print("iConLayeredNode","CR:"+coverRng1.getLatitude()+","+coverRng1.getLongitude()+":"+coverRng2.getLatitude()+","+coverRng2.getLongitude());
+		//P.print("iConLayeredNode","SR:"+subRange1.getLatitude()+","+subRange1.getLongitude()+":"+subRange2.getLatitude()+","+subRange2.getLongitude());
+		//P.print("", "**************");
 		//check for total cover
 		if(coverRng1.getLongitude()<subRange1.getLongitude()&&coverRng2.getLongitude()>subRange2.getLongitude()){
 			if(coverRng1.getLatitude()<subRange1.getLatitude()&&coverRng2.getLatitude()>subRange2.getLatitude()){
@@ -394,58 +399,62 @@ public class iConLayeredNode implements iConNode{
 		coverrange=Math.abs(coverrange);
 		double subrange=subRange2.getLongitude()-subRange1.getLongitude();
 		subrange=Math.abs(subrange);
+		//P.print("iConLayeredNode","CR vs SR lengths:"+coverrange+","+subrange);
 		if(coverrange>subrange){
 			//check subrange rng1 for inside coverrange
-			if(coverRng1.getLongitude()<subRange1.getLongitude()&&subRange1.getLongitude()>coverRng2.getLongitude()){
-				if(coverRng1.getLatitude()<subRange1.getLatitude()&&coverRng2.getLatitude()>subRange1.getLatitude()){
+			if(coverRng1.getLongitude()<=subRange1.getLongitude()&&subRange1.getLongitude()<=coverRng2.getLongitude()){
+				if(coverRng1.getLatitude()<=subRange1.getLatitude()&&coverRng2.getLatitude()>=subRange1.getLatitude()){
 					return 0;
 				}
 			}
 			//check subrange rng2 for inside coverrange
-			if(coverRng1.getLongitude()<subRange2.getLongitude()&&subRange2.getLongitude()>coverRng2.getLongitude()){
-				if(coverRng1.getLatitude()<subRange2.getLatitude()&&coverRng2.getLatitude()>subRange2.getLatitude()){
+			if(coverRng1.getLongitude()<=subRange2.getLongitude()&&subRange2.getLongitude()<=coverRng2.getLongitude()){
+				if(coverRng1.getLatitude()<=subRange2.getLatitude()&&coverRng2.getLatitude()>=subRange2.getLatitude()){
 					return 0;
 				}
 			}
 			//check topleft corner possibility,need bottom right corner
 			iConAddress bottomright = new iConAddress(subRange1.getAddress(),subRange1.getLatitude(),subRange2.getLongitude());
-			if(coverRng1.getLongitude()<bottomright.getLongitude()&&bottomright.getLongitude()>coverRng2.getLongitude()){
-				if(coverRng1.getLatitude()<bottomright.getLatitude()&&coverRng2.getLatitude()>bottomright.getLatitude()){
+			if(coverRng1.getLongitude()<=bottomright.getLongitude()&&bottomright.getLongitude()<=coverRng2.getLongitude()){
+				if(coverRng1.getLatitude()<=bottomright.getLatitude()&&coverRng2.getLatitude()>=bottomright.getLatitude()){
 					return 0;
 				}
 			}
 			//check botton right corner possiblity need top left corner
-			iConAddress topleft = new iConAddress(subRange1.getAddress(),subRange1.getLongitude(),subRange2.getLatitude());
-			if(coverRng1.getLongitude()<topleft.getLongitude()&&topleft.getLongitude()>coverRng2.getLongitude()){
-				if(coverRng1.getLatitude()<topleft.getLatitude()&&coverRng2.getLatitude()>topleft.getLatitude()){
+			iConAddress topleft = new iConAddress(subRange1.getAddress(),subRange2.getLatitude(),subRange1.getLongitude());
+			if(coverRng1.getLongitude()<=topleft.getLongitude()&&topleft.getLongitude()<=coverRng2.getLongitude()){
+				if(coverRng1.getLatitude()<=topleft.getLatitude()&&coverRng2.getLatitude()>=topleft.getLatitude()){
 					return 0;
 				}
 			}
 		}else{
 			//check subrange rng1 for inside coverrange
-			if(subRange1.getLongitude()<coverRng1.getLongitude()&&coverRng1.getLongitude()>subRange2.getLongitude()){
-				if(subRange1.getLatitude()<coverRng1.getLatitude()&&subRange2.getLatitude()>coverRng1.getLatitude()){
+			//P.print("iConLayeredNode", "subRange is larger than coverrange");
+			if(subRange1.getLongitude()<=coverRng1.getLongitude()&&coverRng1.getLongitude()<=subRange2.getLongitude()){
+				if(subRange1.getLatitude()<=coverRng1.getLatitude()&&subRange2.getLatitude()>=coverRng1.getLatitude()){
 					return 0;
 				}
 			}
 			//check subrange rng2 for inside coverrange
-			if(subRange1.getLongitude()<coverRng2.getLongitude()&&coverRng2.getLongitude()>subRange2.getLongitude()){
-				if(subRange1.getLatitude()<coverRng2.getLatitude()&&subRange2.getLatitude()>coverRng2.getLatitude()){
+			if(subRange1.getLongitude()<=coverRng2.getLongitude()&&coverRng2.getLongitude()<=subRange2.getLongitude()){
+				if(subRange1.getLatitude()<=coverRng2.getLatitude()&&subRange2.getLatitude()>=coverRng2.getLatitude()){
 					return 0;
 				}
 			}
 			//check topleft corner possibility,need bottom right corner
 			iConAddress bottomright = new iConAddress(coverRng1.getAddress(),coverRng1.getLatitude(),coverRng2.getLongitude());
-			if(subRange1.getLongitude()<bottomright.getLongitude()&&bottomright.getLongitude()>subRange2.getLongitude()){
-				if(subRange1.getLatitude()<bottomright.getLatitude()&&subRange2.getLatitude()>bottomright.getLatitude()){
+			if(subRange1.getLongitude()<=bottomright.getLongitude()&&bottomright.getLongitude()<=subRange2.getLongitude()){
+				if(subRange1.getLatitude()<=bottomright.getLatitude()&&subRange2.getLatitude()>=bottomright.getLatitude()){
 					return 0;
 				}
 			}
 			//check bottom right corner possiblity need top left corner
 			
-			iConAddress topleft = new iConAddress(coverRng1.getAddress(),coverRng1.getLongitude(),coverRng2.getLatitude());
-			if(subRange1.getLongitude()<topleft.getLongitude()&&topleft.getLongitude()>subRange2.getLongitude()){
-				if(subRange1.getLatitude()<topleft.getLatitude()&&subRange2.getLatitude()>topleft.getLatitude()){
+			iConAddress topleft = new iConAddress(coverRng1.getAddress(),coverRng2.getLatitude(),coverRng1.getLongitude());
+			//P.print("ck", subRange1.getLongitude()+"SRLng<="+topleft.getLongitude()+" "+topleft.getLongitude()+"CRLon<="+subRange2.getLongitude());
+			if(subRange1.getLongitude()<=topleft.getLongitude()&&topleft.getLongitude()<=subRange2.getLongitude()){
+				//P.print("ck", "half way");
+				if(subRange1.getLatitude()<=topleft.getLatitude()&&subRange2.getLatitude()>=topleft.getLatitude()){
 					return 0;
 				}
 			}
@@ -455,21 +464,29 @@ public class iConLayeredNode implements iConNode{
 	
 	public LinkedList<Integer> getCoverage(iConAddress coverRng1,
 			iConAddress coverRng2, iConAddress srcAddress, double latlongrad) {
+		//P.print("iConLayeredNode", "In node so find children and determine coverage");
 		LinkedList<Integer> usersInCover = new LinkedList<Integer>();
 		for(int i=0;i<4;i++){
 			iConNodeIdentifier childNodeid = this.addrrouting[i];
 			if(childNodeid!=null){
 				int covertype = getCoverage(i,coverRng1,coverRng2);
+				//P.print("iConLayeredNode", "Found Valid Child of cover type "+covertype+" quad "+i);
 				if(covertype==1){//we have full coverage add all users to list under this cover node
 					LinkedList<Integer> childUsers = iConServer.getInstance().addAllUsersInNode(childNodeid);
-					for(int k=0;i<childUsers.size();k++){
+					//P.print("iConLayeredNode","add users "+childUsers.size());
+					for(int k=0;k<childUsers.size();k++){
 						usersInCover.add(childUsers.get(k));
 					}
+					//P.print("iConLayeredNode","in cover "+usersInCover.size());
 				}else if(covertype==0){//we have partial coverage only need to sub call getCoverage
-					return iConServer.getInstance().getCoverage(coverRng1, coverRng2, childNodeid, srcAddress, latlongrad);
+					LinkedList<Integer> childUsers= iConServer.getInstance().getCoverage(coverRng1, coverRng2, childNodeid, srcAddress, latlongrad);
+					for(int k=0;k<childUsers.size();k++){
+						usersInCover.add(childUsers.get(k));
+					}
 				}
 			}
 		}
-		return null;
+		//P.print(this.toString2()," this node and below have "+usersInCover.size());
+		return usersInCover;
 	}
 }

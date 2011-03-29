@@ -113,7 +113,7 @@ public class iConServer {
 	}
 	
 	public LinkedList<Integer> addAllUsersInNode(iConNodeIdentifier childNodeid){
-		if(childNodeid.getUrl().equals(this.url)){
+		if(childNodeid.getUrl().equals(this.url)){//child node is local
 			LinkedList<Integer> users = new LinkedList<Integer>();
 			iConLayeredNode childNode = (iConLayeredNode) this.hashtable.get(childNodeid.getKey());
 			Set<Integer> keys = childNode.getRegisteredUserKeys();
@@ -121,8 +121,10 @@ public class iConServer {
 			while(it.hasNext()){
 				users.add(it.next());
 			}
+			//P.print("iConServer","Add users from this server "+users.size());
+			
 			return users;
-		}else{
+		}else{//child node is remote
 			LinkedList<Integer> users = new LinkedList<Integer>();
 			String userkeys = iConWeb.getInstance().addAllUsersInNode(childNodeid.getUrl(),childNodeid.getKey(),childNodeid.getQuadrant());
 			StringTokenizer st = new StringTokenizer(userkeys);
@@ -136,6 +138,7 @@ public class iConServer {
 	
 	public LinkedList<Integer> getCoverage(iConAddress coverRng1,iConAddress coverRng2,iConNodeIdentifier nodeid,iConAddress srcAddress,double latlongrad){
 		if(nodeid==null){//assume to use root node then
+			//P.print("iConServer", "node id was null, so use root");
 			return this.rootNode.getCoverage(coverRng1,coverRng2,srcAddress,latlongrad);
 		}else{//must be recursive call back
 			if(nodeid.getUrl().equals(this.url)){

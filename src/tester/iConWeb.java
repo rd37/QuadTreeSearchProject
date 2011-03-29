@@ -58,7 +58,9 @@ public class iConWeb {
 				iConAddress srcAddress = new iConAddress(newip,newlat,newlong);
 				iConAddress coverRng1 = new iConAddress(newip,newlat-latlongrad,newlong-latlongrad);
 				iConAddress coverRng2 = new iConAddress(newip,newlat+latlongrad,newlong+latlongrad);
+				//P.print("iConWeb", "cover setup , now get from server");
 				list =  serv.getCoverage(coverRng1,coverRng2,null,srcAddress,latlongrad);
+				//P.print("iConWeb","System returned "+list.size()+" users");
 			}
 		}
 		String returnString="";
