@@ -14,13 +14,16 @@ public class MoveUserTestCase extends TestCase{
 		iConWeb.getInstance().addServer(server);
 		//server.showhashmap();
 		//int userkey =iConWeb.getInstance().addUser("rigi-lab-03.cs.uvic.ca", "142.104.35.43", 48.46915, -123.3192);
-		int userkey =iConWeb.getInstance().addUser("rigi-lab-03.cs.uvic.ca", "142.104.35.43", 48.4613, -123.3104);
+		/*int userkey =iConWeb.getInstance().addUser("rigi-lab-03.cs.uvic.ca", "142.104.35.43", 48.4613, -123.3104);
 		server.showlocationtree();
 		System.out.println("");
 		P.print("MoveUserTestCase", "now move user");
-		iConWeb.getInstance().moveUser("rigi-lab-03.cs.uvic.ca", "142.104.35.43", 48.464, -123.3135, userkey);
+		iConWeb.getInstance().moveUser("rigi-lab-03.cs.uvic.ca", "142.104.35.43", 48.4622, -123.3104, userkey);
 		server.showlocationtree();
 		System.out.println("");
+		P.print("MoveUserTestCase", "now move user");
+		iConWeb.getInstance().moveUser("rigi-lab-03.cs.uvic.ca", "142.104.35.43", 48.4622, -123.3104, userkey);
+		server.showlocationtree();*/
 		/*P.print("MoveUserTestCase", "Now add another user to old position");
 		int userkey2 =iConWeb.getInstance().addUser("rigi-lab-03.cs.uvic.ca", "142.104.35.43", 48.4695, -123.3195);
 		server.showlocationtree();
@@ -28,6 +31,16 @@ public class MoveUserTestCase extends TestCase{
 		iConWeb.getInstance().moveUser("rigi-lab-03.cs.uvic.ca", "142.104.35.43", 48.457, -123.310, userkey2);
 		server.showlocationtree();
 		System.out.println("");*/
+		int userkey =iConWeb.getInstance().addUser("rigi-lab-03.cs.uvic.ca", "142.104.35.43", 48.463, -123.313);
+		server.showlocationtree();
+		System.out.println("");
+		P.print("MoveUserTestCase", "now move user");
+		iConWeb.getInstance().moveUser("rigi-lab-03.cs.uvic.ca", "142.104.35.43", 48.463, -123.313, userkey);
+		server.showlocationtree();
+		System.out.println("");
+		iConWeb.getInstance().moveUser("rigi-lab-03.cs.uvic.ca", "142.104.35.43", 48.463, -123.313, userkey);
+		server.showlocationtree();
+		System.out.println("");
 		
 	}
 

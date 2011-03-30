@@ -32,6 +32,6 @@ public class iConTester {
 	public static void main(String args[]){
 		iConTester tester = new iConTester();
 		tester.initialize();
-		tester.execute(3);
+		tester.execute(1);
 	}
 }

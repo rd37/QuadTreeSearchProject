@@ -32,6 +32,11 @@ public class iConServer {
 	
 	public static iConServer getInstance(){return server;};
 	
+	public iConAddress getUserAddress(int key){
+		//TODO this needs to be distributed
+		return ((iConUser)this.hashtable.get(key)).getAddress();
+	}
+	
 	public void intialize(int seed,int depthLevel){
 		random=new Random(seed);
 		addUserDepthLevel=depthLevel;
@@ -55,13 +60,13 @@ public class iConServer {
 		return hashtable.get(key);
 	}
 	
-	public void createUserNode(iConNodeIdentifier nextPeer,int key){
+	public void createUserNode(iConNodeIdentifier nextPeer,iConAddress address, int key){
 		String peerUrl=nextPeer.getUrl();
 		if(peerUrl.equals(this.url)){
 			iConLayeredNode nextNode = (iConLayeredNode) this.hashtable.get(key);
-			nextNode.createUserNode(key,this.addUserDepthLevel);
+			nextNode.createUserNode(key,address, this.addUserDepthLevel);
 		}else{//need to perform a web call
-			iConWeb.getInstance().createUserNode(nextPeer.getQuadrant(),nextPeer.getKey(),nextPeer.getUrl(),key);
+			iConWeb.getInstance().createUserNode(nextPeer.getQuadrant(),nextPeer.getKey(),nextPeer.getUrl(),key,address.getLatitude(),address.getLongitude());
 		}
 	}
 	
@@ -96,7 +101,7 @@ public class iConServer {
 	public int addUser(iConAddress address){
 		int userkey=this.getKey();
 		P.print("iConServer", "Create a new User to add to system "+userkey);
-		rootNode.createUserNode(userkey,this.addUserDepthLevel);
+		rootNode.createUserNode(userkey, address,this.addUserDepthLevel);
 		P.print("iConServer", "User is created, now add to location data structure");
 		rootNode.addUser(address,addUserDepthLevel,userkey);
 		return userkey;
@@ -180,6 +185,16 @@ public class iConServer {
 		}
 	}
 	
+	public void updateUserPosition(String url, iConAddress newaddr, int userkey){
+		this.rootNode.updateUserPosition(newaddr,userkey);
+		if(url.equals(this.url)){
+			((iConUser)this.hashtable.get(userkey)).setAddress(newaddr);
+		}
+	}
+	
+	public void updateUserPosition(iConAddress newaddr, int userkey){
+		this.rootNode.updateUserPosition(newaddr,userkey);
+	}
 	public void moveUser(iConAddress newaddr,int userkey){
 		this.rootNode.moveUser(newaddr,userkey,this.addUserDepthLevel);
 	}

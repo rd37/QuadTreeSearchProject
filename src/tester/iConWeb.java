@@ -85,6 +85,7 @@ public class iConWeb {
 			if(serv.getUrl().equals(serverurl)){
 				iConAddress newaddr = new iConAddress(newip,newlat,newlong);
 				serv.moveUser(newaddr,userkey);
+				serv.updateUserPosition(newaddr,userkey);
 			}
 		}
 	}
@@ -113,12 +114,12 @@ public class iConWeb {
 		return -1;
 	}
 	
-	public void createUserNode(String quad,int key,String url,int userkey){
+	public void createUserNode(String quad,int key,String url,int userkey,double lat,double lng){
 		for(int i=0;i<servers.size();i++){
 			iConServer serv = servers.get(i);
 			if(serv.getUrl().equals(url)){
 				iConNodeIdentifier nodeID = new iConNodeIdentifier(url,key,url);
-				serv.createUserNode(nodeID, userkey);
+				serv.createUserNode(nodeID, new iConAddress("",lat,lng),userkey);
 			}
 		}
 	}

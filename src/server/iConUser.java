@@ -5,6 +5,8 @@ public class iConUser implements iConNode
 	private int key;
 	private String parentQuadrant="";
 	private int level=0;
+	private iConAddress address;
+	
 	@Override
 	public int getKey() {
 		return key;
@@ -33,6 +35,14 @@ public class iConUser implements iConNode
 	
 	public void setParentQuadrant(String quad){
 		this.parentQuadrant=quad;
+	}
+
+	public void setAddress(iConAddress address) {
+		this.address = address;
+	}
+
+	public iConAddress getAddress() {
+		return address;
 	}
 
 }

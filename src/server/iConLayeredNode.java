@@ -80,7 +80,7 @@ public class iConLayeredNode implements iConNode{
 		}
 	}
 	
-	public void createUserNode(int key,int depth){
+	public void createUserNode(int key,iConAddress address, int depth){
 		int prevKey=this.hashkey;
 		if(prevPeer!=null){
 			prevKey=prevPeer.getKey();
@@ -93,6 +93,7 @@ public class iConLayeredNode implements iConNode{
 			iConUser userNode = new iConUser();
 			userNode.setKey(key);
 			userNode.setLevel(depth);
+			userNode.setAddress(address);
 			iConServer.getInstance().addNodeToHashTable(userNode, key);
 		}else if(key<this.hashkey&&key>prevKey){ // key is OK to belong to this node
 			/*
@@ -101,9 +102,10 @@ public class iConLayeredNode implements iConNode{
 			iConUser userNode = new iConUser();
 			userNode.setKey(key);
 			userNode.setLevel(depth);
+			userNode.setAddress(address);
 			iConServer.getInstance().addNodeToHashTable(userNode, key);
 		}else{//key is out of range of this node. resend request to either next or prev node
-			iConServer.getInstance().createUserNode(nextPeer,key);
+			iConServer.getInstance().createUserNode(nextPeer,address,key);
 		}
 	}
 	
@@ -140,8 +142,8 @@ public class iConLayeredNode implements iConNode{
 		double longitude=address.getLongitude()+longShift;
 		//P.print("Shifted "+this.toString2(), "User Lat "+latitude+" User Long "+longitude);
 		//P.print("Actual "+this.toString2(), "User Lat "+address.getLatitude()+" User Long "+address.getLongitude());
-		if( shiftedrange1.getLongitude()<longitude && shiftedrange2.getLongitude()>longitude ){
-			if( shiftedrange1.getLatitude()<latitude && shiftedrange2.getLatitude()>latitude ){
+		if( shiftedrange1.getLongitude()<=longitude && shiftedrange2.getLongitude()>=longitude ){
+			if( shiftedrange1.getLatitude()<=latitude && shiftedrange2.getLatitude()>=latitude ){
 				//P.print(this.toString2(), "Added user fits in this nodes range, find sub range");
 				//P.print("Shifted "+this.toString2(), "Quad Rng1 "+shiftedrange1.getLatitude()+" "+shiftedrange1.getLongitude()+"  RNG2 "+shiftedrange2.getLatitude()+" "+shiftedrange2.getLongitude());
 				//P.print("Actual "+this.toString2(), "Quad Rng1 "+range1.getLatitude()+" "+range1.getLongitude()+"  RNG2 "+range2.getLatitude()+" "+range2.getLongitude());
@@ -240,6 +242,7 @@ public class iConLayeredNode implements iConNode{
 		}else{
 			P.print(this.toString(), "child node did not fit in this range");
 		}
+		P.print(this.toString(), "child node did not fit in this range 2"); 
 		return null;
 	}
 
@@ -254,7 +257,29 @@ public class iConLayeredNode implements iConNode{
 		this.userkeys.put(userkey,quadrant);
 	}
 	
+	public void updateUserPosition(iConAddress newaddr, int userkey){
+		int prevKey=this.hashkey;
+		if(prevPeer!=null){
+			prevKey=prevPeer.getKey();
+		}
+		if(this.hashkey==prevKey){//this is the only node at this level
+			/*
+			 * Create a new node and add to this iConServer
+			 */
+			
+		}else if(userkey<this.hashkey&&userkey>prevKey){ // key is OK to belong to this node
+			/*
+			 * Create a new node and add to this iConServer
+			 */
+			iConServer.getInstance().updateUserPosition(iConServer.getInstance().getUrl(),newaddr, userkey);
+		}else{//key is out of range of this node. resend request to either next or prev node
+			System.err.println("This still has to be done");
+		}
+	}
+	
 	public void moveUser(iConAddress newaddr,int userkey,int addUserDepthLevel){
+		if(addUserDepthLevel==this.level)
+			return;
 		String quadrant = (String) this.userkeys.get(userkey);
 		P.print("iConLayeredNode:"+this.getLevel()+"", " to move user "+userkey+" from quad "+quadrant);
 		iConNodeIdentifier nextNodeid=null;
@@ -279,9 +304,13 @@ public class iConLayeredNode implements iConNode{
 			iConServer.getInstance().moveUser(nextNodeid, newaddr,userkey);
 		}else{//quadrants are different.  so make change from here
 			//remove user from system
-			P.print("iConLayeredNode:"+this.level, "Quadrants are now different so remove user from old line "+quadrant+" "+newquadrant);
-			if(nextNodeid!=null)
+			P.print(this.toString2(), "Quadrants are now different so remove user from old line "+quadrant+" "+newquadrant);
+			if(nextNodeid!=null){
+				//P.print(this.toString2(), "User QuadKey at this Level "+quadrant+" user max depth is "+addUserDepthLevel);
 				iConServer.getInstance().removeUser(nextNodeid,userkey);
+				this.userkeys.remove(userkey);
+				this.userkeys.put(userkey,newquadrant);
+			}
 			//add user to system
 			iConNodeIdentifier childNode = this.getChildNode(newaddr);
 			iConServer.getInstance().addUser(newaddr, childNode,addUserDepthLevel,userkey);
@@ -299,6 +328,8 @@ public class iConLayeredNode implements iConNode{
 	
 	public void removeUser(int userkey){
 		String oldQuadrant = (String) this.userkeys.get(userkey);
+		//if(oldQuadrant==null)
+		//	return;
 		iConNodeIdentifier nextNodeid=null;
 		if(oldQuadrant.equals("A")){
 			nextNodeid=addrrouting[0];
@@ -342,8 +373,8 @@ public class iConLayeredNode implements iConNode{
 		double latitude=address.getLatitude()+latShift;
 		double longitude=address.getLongitude()+longShift;
 		//P.print(this.toString2(), "user lat "+latitude+" user long:"+longitude);
-		if( shiftedrange1.getLongitude()<longitude && shiftedrange2.getLongitude()>longitude ){
-			if( shiftedrange1.getLatitude()<latitude && shiftedrange2.getLatitude()>latitude ){
+		if( shiftedrange1.getLongitude()<=longitude && shiftedrange2.getLongitude()>=longitude ){
+			if( shiftedrange1.getLatitude()<=latitude && shiftedrange2.getLatitude()>=latitude ){
 				//P.print(this.toString2(), "added user fits in this nodes range, find sub range");
 				
 				if(shiftedrange1.getLongitude()<longitude && (shiftedrange2.getLongitude()/2)>longitude ){
