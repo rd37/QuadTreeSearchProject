@@ -23,6 +23,15 @@ public class iConWeb {
 		P.print("iConWeb","added server "+server.getUrl());
 	}
 	
+	public void removeUser(String serverurl,int userkey){
+		for(int i=0;i<servers.size();i++){
+			iConServer serv = servers.get(i);
+			if(serv.getUrl().equals(serverurl)){
+				serv.removeUser(userkey);
+			}
+		}
+	}
+	
 	public void removeUser(String serverurl, String nextNodeUrl2,
 			int nextNodeKey, String quadrant, int userkey) {
 		for(int i=0;i<servers.size();i++){

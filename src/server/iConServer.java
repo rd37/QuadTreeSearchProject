@@ -150,6 +150,12 @@ public class iConServer {
 		}
 	}
 	
+	public void removeUser(int userkey){
+		iConNodeIdentifier rootid = new iConNodeIdentifier(this.url,this.rootNode.getKey(),"");
+		removeUser(rootid,userkey);
+		this.hashtable.remove(userkey);
+	}
+	
 	public void removeUser(iConNodeIdentifier nextNodeid,int userkey){
 		if(nextNodeid==null)
 			return;
