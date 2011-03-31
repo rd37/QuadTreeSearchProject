@@ -32,11 +32,30 @@ public class iConServer {
 	
 	public static iConServer getInstance(){return server;};
 	
+	public int[] getMessageKey(int userkey){
+		iConUser userNode = (iConUser) hashtable.get(userkey);
+		int msgkey = userNode.getMessage(0);
+		int msgcnt = userNode.getMsgCount(0);
+		int[] ret = new int[2];
+		ret[0]=msgcnt;
+		ret[1]=msgkey;
+		return ret;
+	}
+	
+	public void addMessageKey(int userkey,int msgkey,int type){
+		//assuem key belongs here
+		iConUser userNode = (iConUser) this.hashtable.get(userkey);
+		userNode.addMessage(msgkey, type);
+	}
+	
 	public iConAddress getUserAddress(int key){
 		//TODO this needs to be distributed
 		return ((iConUser)this.hashtable.get(key)).getAddress();
 	}
 	
+	public double metersToDegree(double meters){
+		return 0.00001*meters;
+	}
 	public void intialize(int seed,int depthLevel){
 		random=new Random(seed);
 		addUserDepthLevel=depthLevel;
@@ -186,15 +205,19 @@ public class iConServer {
 	}
 	
 	public void updateUserPosition(String url, iConAddress newaddr, int userkey){
-		this.rootNode.updateUserPosition(newaddr,userkey);
+		//this.rootNode.updateUserPosition(newaddr,userkey);
 		if(url.equals(this.url)){
+			iConUser user = ((iConUser)this.hashtable.get(userkey));
+			//System.out.println("Change Address from "+user.getAddress().getLatitude()+" "+user.getAddress().getLongitude());
 			((iConUser)this.hashtable.get(userkey)).setAddress(newaddr);
+			//System.out.println("Change Address  To "+user.getAddress().getLatitude()+" "+user.getAddress().getLongitude());
 		}
 	}
 	
 	public void updateUserPosition(iConAddress newaddr, int userkey){
 		this.rootNode.updateUserPosition(newaddr,userkey);
 	}
+	
 	public void moveUser(iConAddress newaddr,int userkey){
 		this.rootNode.moveUser(newaddr,userkey,this.addUserDepthLevel);
 	}

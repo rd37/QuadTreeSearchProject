@@ -266,7 +266,7 @@ public class iConLayeredNode implements iConNode{
 			/*
 			 * Create a new node and add to this iConServer
 			 */
-			
+			iConServer.getInstance().updateUserPosition(iConServer.getInstance().getUrl(),newaddr, userkey);
 		}else if(userkey<this.hashkey&&userkey>prevKey){ // key is OK to belong to this node
 			/*
 			 * Create a new node and add to this iConServer
@@ -281,7 +281,7 @@ public class iConLayeredNode implements iConNode{
 		if(addUserDepthLevel==this.level)
 			return;
 		String quadrant = (String) this.userkeys.get(userkey);
-		P.print("iConLayeredNode:"+this.getLevel()+"", " to move user "+userkey+" from quad "+quadrant);
+		//P.print("iConLayeredNode:"+this.getLevel()+"", " to move user "+userkey+" from quad "+quadrant);
 		iConNodeIdentifier nextNodeid=null;
 		if(quadrant.equals("A")){
 			nextNodeid=addrrouting[0];
@@ -304,7 +304,7 @@ public class iConLayeredNode implements iConNode{
 			iConServer.getInstance().moveUser(nextNodeid, newaddr,userkey);
 		}else{//quadrants are different.  so make change from here
 			//remove user from system
-			P.print(this.toString2(), "Quadrants are now different so remove user from old line "+quadrant+" "+newquadrant);
+			//P.print(this.toString2(), "Quadrants are now different so remove user from old line "+quadrant+" "+newquadrant);
 			if(nextNodeid!=null){
 				//P.print(this.toString2(), "User QuadKey at this Level "+quadrant+" user max depth is "+addUserDepthLevel);
 				iConServer.getInstance().removeUser(nextNodeid,userkey);

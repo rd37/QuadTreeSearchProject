@@ -23,6 +23,25 @@ public class iConWeb {
 		P.print("iConWeb","added server "+server.getUrl());
 	}
 	
+	public int[] getMessageKey(String serverurl,int userkey){
+		for(int i=0;i<servers.size();i++){
+			iConServer serv = servers.get(i);
+			if(serv.getUrl().equals(serverurl)){
+				return serv.getMessageKey(userkey);
+			}
+		}
+		return null;
+	}
+	
+	public void addMessageKey(String serverurl, int userkey,int msgkey,int type){
+		for(int i=0;i<servers.size();i++){
+			iConServer serv = servers.get(i);
+			if(serv.getUrl().equals(serverurl)){
+				serv.addMessageKey(userkey,msgkey,type);
+			}
+		}
+	}
+	
 	public void removeUser(String serverurl,int userkey){
 		for(int i=0;i<servers.size();i++){
 			iConServer serv = servers.get(i);
