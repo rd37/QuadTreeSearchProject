@@ -1,3 +1,6 @@
+/*
+* ron... this does nothing,.... get rid of it or a least devote some thought tto what your doing.....
+*/
 package client;
 
 public class iConClient {
